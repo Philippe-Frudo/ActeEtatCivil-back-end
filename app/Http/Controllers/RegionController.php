@@ -36,6 +36,31 @@ class RegionController extends Controller
     }
 
     /**
+     * Store a newly created resource in storage.
+     */
+    public function addAllRegion(Request $request)
+    {
+        $requests = json_decode($request->getContent(), true); // decodage du JSON
+
+        $regionExist = [];
+        $i = 0;
+        foreach ($requests as $region) {
+            $resp = Region::where('code_region', $region['code_region'])->first();
+            if (!$resp) {
+                Region::create([
+                    'code_region' => $region['code_region'],
+                    'nom_region' => $region['nom_region']
+                ]);
+            } else {
+                $regionExist[$i] = $region['code_region'] . ' ' . $region['nom_region'];
+                $i++;
+            }
+        }
+        return response()->json(['status' => !empty($regionExist), 'rejeter' => $regionExist]);
+    }
+
+
+    /**
      * Display the specified resource.
      */
     public function show(string $id)
@@ -45,7 +70,7 @@ class RegionController extends Controller
         if (!$region) {
             return response()->json(['status' => false, 'message' => "Cette région n'existe pas"], 404);
         }
-        return response()->json(['status' => true, 'message' => `Modification de la region {$region->code_region} est reussi`], 200);
+        return response()->json($region, 200);
     }
 
     /**
@@ -53,9 +78,20 @@ class RegionController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $region = $this->region->find($id);
-        $region->update($request->all());
-        return $region;
+        $region = $this->region->find($request->id_region);
+
+        // Vérifier si l'enregistrement est trouvé
+        if (!$region) {
+            return response()->json(['status' => false, 'message' => 'region non trouvé'], 404);
+        }
+
+        // Mettre à jour le nom du region
+        $region->update([
+            'code_region' => $request->code_region,
+            'nom_region' => $request->nom_region
+        ]);
+
+        return response()->json(['status' => true, 'message' => 'Modification réussi'], 200);
     }
 
     /**
@@ -64,6 +100,10 @@ class RegionController extends Controller
     public function destroy(string $id)
     {
         $region = $this->region->find($id);
-        return $region->delete();
+        if (!$region) {
+            return response()->json(['status' => false, 'message' => "region introuvable"], 404);
+        }
+        $region->delete();
+        return response()->json(['status' => true, 'message' => "Suppression reuissi"], 200);
     }
 }

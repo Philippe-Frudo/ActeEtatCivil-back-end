@@ -17,4 +17,8 @@ class Commune extends Model
     ];
 
     use HasFactory;
+
+    public function district() {
+        return $this->belongsTo(District::class, 'id_district');
+    }
 }

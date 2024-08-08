@@ -16,8 +16,11 @@ class District extends Model
     protected $fillable = [
         'code_district',
         'nom_district',
-        'code_region',
+        'id_region',
     ];
 
 
+    public function region() {
+        return $this->belongsTo(Region::class, 'id_region');
+    }
 }

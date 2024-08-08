@@ -32,7 +32,15 @@ class PersonneController extends Controller
         if (!$personne) {
             return response()->json(['status' => false, 'message' => "Donner introuvable"], 404);
         }
-        return response()->json($personne, 201);
+
+
+        // Utilisation de latest (si la colonne est bien id_person)
+        $idPerson = Personne::latest('id_person')->first()->id_person;
+        if ($idPerson) {
+            return response()->json(['status' => true, 'data' =>  $idPerson], 200);
+        }
+
+        return response()->json(['status' => false, 'message' => "Une erreur s'est produit"], 404);
     }
 
     /**
@@ -77,5 +85,16 @@ class PersonneController extends Controller
             return response()->json(['status' => false, 'message' => "Une erruer s'est produit lors de la suppression du personne"], 500);
         }
         return response()->json(['status' => true, 'message' => "Suppression reuissi"], 200);
+    }
+
+
+    public function lastPersonne()
+    {
+        $lastPerson = $this->personne->orderBy('id_person', 'desc')->first();
+        $lastIdPerson = $lastPerson ? $lastPerson->id_person : null;
+        if ($lastIdPerson) {
+            return $lastIdPerson;
+        }
+        return null;
     }
 }

@@ -13,12 +13,13 @@ return new class extends Migration
     {
         Schema::create('acte', function (Blueprint $table) {
             $table->id('id_acte');
+            $table->string('num_acte', 100)->nullable(false);
             $table->date('date_acte')->nullable(false);
             $table->time('heure_acte')->nullable(false);
             $table->string('lieu_acte', 100)->nullable(false);
             $table->date('date_enreg')->nullable(false);
             $table->time('heure_enreg')->nullable(false);
-            
+
             $table->string('nom_temoin', 30)->nullable(false);
             $table->string('prenom_temoin', 50);
             $table->string('sexe_temoin', 1)->nullable(false);
@@ -41,7 +42,6 @@ return new class extends Migration
             $table->foreign('id_commune')->references('id_commune')->on('commune')->onDelete('cascade');
             $table->foreign('id_fonkotany')->references('id_fonkotany')->on('fonkotany')->onDelete('cascade');
             $table->foreign('id_off')->references('id_off')->on('officier')->onDelete('cascade');
-            
         });
     }
 

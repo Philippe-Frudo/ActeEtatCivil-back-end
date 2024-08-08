@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Commune;
 use App\Models\Fonkotany;
 use Illuminate\Http\Request;
 
@@ -19,8 +20,54 @@ class FonkotanyController extends Controller
      */
     public function index()
     {
-        return $this->fonkotany->all();
+        $fonkotanyData = $this->fonkotany->join('commune', 'fonkotany.id_commune', '=', 'commune.id_commune')
+            ->select('fonkotany.id_fonkotany', 'fonkotany.code_fonkotany', 'fonkotany.nom_fonkotany', 'commune.code_commune')
+            ->get();
+        return $fonkotanyData;
     }
+
+
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function addAllfonkotany(Request $request)
+    {
+        // return $request;
+        // Décodage du JSON reçu dans le corps de la requête
+        $requests = json_decode($request->getContent(), true);
+
+        // Initialisation d'un tableau pour stocker les fonkotanys existants
+        $fonkotanyExist = [];
+        $i = 0;
+        // Parcours de chaque fonkotany dans la requête
+        foreach ($requests as $fonkotany) {
+
+            // Vérification si le fonkotany existe déjà dans la base de données
+            $foundFonkotany = $this->fonkotany->where('code_fonkotany', $fonkotany['code_fonkotany'])->first();
+
+            // Vérification si le code de la commune est valide et existe dans la base de données et retoirne sa valeur grace a la methode pluck('code_commune') 
+            $codeFonkotanyWithCommune = Commune::where('code_commune', $fonkotany['code_commune'])->pluck('code_commune')->first();
+
+            // Si le fonkotany n'existe pas et que le code de la commune est valide
+            if (!$foundFonkotany && $codeFonkotanyWithCommune) {
+                // Création du nouveau fonkotany
+                $this->fonkotany->create([
+                    'code_fonkotany' => $fonkotany['code_fonkotany'],
+                    'nom_fonkotany' => $fonkotany['nom_fonkotany'],
+                    'id_commune' => commune::where('code_commune', $fonkotany['code_commune'])->pluck('id_commune')->first() //Retourne l'Identifiant de commune
+                ]);
+            } else {
+                // Stockage des informations sur les fonkotanys existants ou avec une commune invalide
+                $fonkotanyExist[$i] = $fonkotany['code_fonkotany'] . ', ' . $fonkotany['nom_fonkotany'] . ', code_commune:' . $fonkotany['code_commune'] . '  ';
+                $i++;
+            }
+        }
+
+        // Retourne une réponse JSON avec le statut et les fonkotanys rejetés
+        return response()->json(['status' => !empty($fonkotanyExist), 'message' => 'ce(e) fonkotany est(sont) deja existe', 'rejeter' => $fonkotanyExist]);
+    }
+
 
     /**
      * Store a newly created resource in storage.
