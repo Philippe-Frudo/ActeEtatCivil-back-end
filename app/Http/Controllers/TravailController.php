@@ -27,12 +27,43 @@ class TravailController extends Controller
      */
     public function store(Request $request)
     {
-        $travail = $this->travail->create($request->all());
-        if (!$travail) {
-            return response()->json(['status' => false, 'message' => "Donner introuvable"], 404);
+        $resp = $this->travail->where('nom_travail', $request['nom_travail'])->first();
+
+        if (!$resp) {
+            $this->travail->create([
+                'nom_travail' => $request['nom_travail']
+            ]);
+        } else {
+            return response()->json(['status' => false, 'message' => "C'est travail est dejà existe"]);
         }
-        return response()->json(['status' => false, 'message' => "Une nouvelle travail a été ajouté"], 201);
+        return response()->json(['status' => true, 'message' => "Une nouvelle travail a été ajouté"], 201);
     }
+
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function addAlltravail(Request $request)
+    {
+        $requests = json_decode($request->getContent(), true); // decodage du JSON
+
+        $travailExist = [];
+        $i = 0;
+        foreach ($requests as $travail) {
+
+            $resp = $this->travail->where('nom_travail', $travail['nom_travail'])->first();
+            if (!$resp) {
+                $this->travail->create([
+                    'nom_travail' => $travail['nom_travail']
+                ]);
+            } else {
+                $travailExist[$i] = $travail['nom_travail'];
+                $i++;
+            }
+        }
+        return response()->json(['status' => !empty($travailExist), 'rejeter' => $travailExist]);
+    }
+
 
     /**
      * Display the specified resource.
@@ -50,32 +81,41 @@ class TravailController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request)
     {
-        $travail = $this->travail->find($id);
+        // Afficher le contenu de la requête pour débogage
+        logger()->info('Requête reçue pour mise à jour : ', $request->all());
+        // Vérifier que l'ID est bien présent dans la requête
+        if (!$request->has('id_travail')) {
+            return response()->json(['status' => false, 'message' => 'ID de travail manquant'], 400);
+        }
+
+        // Rechercher l'enregistrement par son identifiant
+        $travail = $this->travail->find($request->id_travail);
+
+        // Vérifier si l'enregistrement est trouvé
         if (!$travail) {
-            return response()->json(['status' => false, 'Une erreur s\'est produit'], 404);
+            return response()->json(['status' => false, 'message' => 'Travail non trouvé'], 404);
         }
-        $resp = $travail->update($request->all());
-        if (!$resp) {
-            return response()->json(['status' => false, 'message' => "Une erruer s'est produit lors de l'ajout du travail"], 404);
-        }
-        return response()->json(['status' => true, 'message' => "Modification reuissi"], 201);
+
+        // Mettre à jour le nom du travail
+        $travail->update([
+            'nom_travail' => $request->nom_travail
+        ]);
+
+        return response()->json(['status' => true, 'message' => 'Modification réussie'], 200);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(int $id)
     {
         $travail = $this->travail->find($id);
         if (!$travail) {
-            return response()->json(['status' => false, 'message' => "Donner introuvable"], 404);
+            return response()->json(['status' => false, 'message' => "travail introuvable"], 404);
         }
-        $resp = $travail->delete();
-        if (!$resp) {
-            return response()->json(['status' => false, 'Cette fnkotany n\'existe pas '], 500);
-        }
-        return response()->json(['status' => true, 'message' => "Suppression reuissi"], 201);
+        $travail->delete();
+        return response()->json(['status' => true, 'message' => "Suppression reuissi"], 200);
     }
 }

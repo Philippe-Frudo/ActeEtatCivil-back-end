@@ -3,24 +3,30 @@
 namespace App\Http\Controllers;
 
 use App\Models\District;
+use App\Models\Region;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class DistrictController extends Controller
 {
 
     protected $district;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->district = new District();
     }
 
 
     /**
-     * Display a listing of the resource.
+     * Display a listing of the resodeurce.
      */
     public function index()
     {
-        return $this->district->all();
+        $districtData = $this->district->join('region', 'region.id_region', '=', 'district.id_region')
+            ->select('district.id_district', 'district.code_district', 'district.nom_district', 'region.code_region')
+            ->get();
+        return $districtData;
     }
 
     /**
@@ -28,27 +34,66 @@ class DistrictController extends Controller
      */
     public function store(Request $request)
     {
-        $district = $this->district->created($request->all() );
+        $district = $this->district->created($request->all());
         if (!$district) {
-            return response()->json(['status'=>false, 'message'=>"Erreur lors de l'ajout"], 404);
+            return response()->json(['status' => false, 'message' => "Erreur lors de l'ajout"], 404);
         }
-        
-        return response()->json(['status'=>true, 'Une nouvelle region a été creé'], 200);
+
+        return response()->json(['status' => true, 'Une nouvelle region a été creé'], 200);
     }
-    
+
+
     /**
-     * Display the specified resource.
+     * Store a newly created resource in storage.
      */
+    public function addAlldistrict(Request $request)
+    {
+        // Décodage du JSON reçu dans le corps de la requête
+        $requests = json_decode($request->getContent(), true);
+
+        // Initialisation d'un tableau pour stocker les districts existants
+        $districtExist = [];
+        $i = 0;
+        // Parcours de chaque district dans la requête
+        foreach ($requests as $district) {
+
+            // Vérification si le district existe déjà dans la base de données
+            $foundDistrict = $this->district->where('code_district', $district['code_district'])->first();
+
+            // Vérification si le code de la région est valide et existe dans la base de données
+            $codeDistrictWithRegion = Region::where('code_region', $district['code_region'])->pluck('code_region')->first();
+            // Si le district n'existe pas et que le code de la région est valide
+            if (!$foundDistrict && ($codeDistrictWithRegion === $district["code_region"])) {
+                // Création du nouveau district
+                $this->district->create([
+                    'code_district' => $district['code_district'],
+                    'nom_district' => $district['nom_district'],
+                    'id_region' => Region::where('code_region', $district['code_region'])->pluck('id_region')->first()
+                ]);
+            } else {
+                // Stockage des informations sur les districts existants ou avec une région invalide
+                $districtExist[$i] = $district['code_district'] . ' ' . $district['nom_district'] . '  region:' . $district['code_region'];
+                $i++;
+            }
+        }
+
+        // Retourne une réponse JSON avec le statut et les districts rejetés
+        return response()->json(['status' => !empty($districtExist), 'rejeter' => $districtExist]);
+    }
+
+
     public function show(string $id)
     {
         $district = $this->district->find($id);
         if (!$district) {
-            return response()->json(['status'=>false, 'message'=>"Ce district n'existe pas"], 404);
+            return response()->json(['status' => false, 'message' => "Cette district n'existe pas"], 404);
         }
-    
+
         return response()->json($district, 200);
     }
-    
+
+
+
     /**
      * Update the specified resource in storage.
      */
@@ -56,17 +101,18 @@ class DistrictController extends Controller
     {
         $district = $this->district->find($id);
         if (!$district) {
-            return response()->json(['status'=>false, 'message'=>"Ce district n'existe pas"], 404);
+            return response()->json(['status' => false, 'message' => "Ce district n'existe pas"], 404);
         }
-        
-        $response = $district->update($request->all() );
+
+        $response = $district->update($request->all());
         if (!$response) {
-            return response()->json(['status'=>false, 'message'=>"Erreur de la modification"], 500);
+            return response()->json(['status' => false, 'message' => "Erreur de la modification"], 500);
         }
-        
-        return response()->json(['status'=>true, 'Modification reuissi'], 200);
+
+        return response()->json(['status' => true, 'Modification reuissi'], 200);
     }
-    
+
+
     /**
      * Remove the specified resource from storage.
      */
@@ -74,13 +120,12 @@ class DistrictController extends Controller
     {
         $district = $this->district->find($id);
         if (!$district) {
-            return response()->json(['status'=>false, 'message'=>"Ce district n'existe pas"], 404);
+            return response()->json(['status' => false, 'message' => "Ce district n'existe pas"], 404);
         }
         $resp = $district->delete();
         if (!$resp) {
-            return response()->json(['status'=>true, 'Erreur lors de la suppression reuissi'], 500);
+            return response()->json(['status' => true, 'Erreur lors de la suppression reuissi'], 500);
         }
-        return response()->json(['status'=>true, 'Suppression reuissi'], 200);
-        
+        return response()->json(['status' => true, 'Suppression reuissi'], 200);
     }
 }

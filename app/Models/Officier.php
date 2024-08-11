@@ -5,21 +5,27 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Fonkotany extends Model
+class Officier extends Model
 {
-    protected $table = 'fonkotany';
-    protected $primaryKey = 'id_fonkotany';
+
+    protected $table = "officier";
+    protected $primaryKey = 'id_off';
     public $incrementing = true;
-    
+
     protected $fillable = [
-        'code_fonkotany',
-        'nom_fonkotany',
+        'nom_off',
+        'prenom_off',
+        'sexe_off',
+        'email_off',
+        'motPass_off',
         'id_commune'
     ];
 
     use HasFactory;
 
-    public function commune() {
+
+    public function commune()
+    {
         return $this->belongsTo(Commune::class, 'id_commune');
     }
 }

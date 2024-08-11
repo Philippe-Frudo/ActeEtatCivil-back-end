@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('adrs_person')->nullable(false);
 
             $table->string('nom_m', 30)->nullable(false);
-            $table->string('prenom_m', 50)->nullable(false);
+            $table->string('prenom_m', 50);
             $table->date('date_nais_m')->nullable(false);
             $table->string('lieu_nais_m', 100)->nullable(false);
             $table->string('age_m', 5)->nullable(true);
@@ -27,7 +27,7 @@ return new class extends Migration
 
             $table->string('adrs_m')->nullable(false);
             $table->string('nom_p')->nullable(false);
-            $table->string('prenom_p')->nullable(false);
+            $table->string('prenom_p');
             $table->date('date_nais_p')->nullable(false);
             $table->string('lieu_nais_p')->nullable(false);
             $table->string('age_p');

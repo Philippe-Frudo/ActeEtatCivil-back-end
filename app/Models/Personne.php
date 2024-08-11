@@ -30,8 +30,7 @@ class Personne extends Model
         'age_p',
         'profession_p',
         'adrs_p',
-        'id_travail',
-       ' date_create_person'
+        'id_travail'
     ];
 
     use HasFactory;

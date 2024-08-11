@@ -12,6 +12,8 @@ class Acte extends Model
     public $incrementing = true;
 
     protected $fillable = [
+        'id_type',
+        'num_acte',
         'date_acte',
         'heure_acte',
         'lieu_acte',
@@ -26,10 +28,15 @@ class Acte extends Model
         'adrs_temoin',
         'profession_temoin',
         'id_person',
-        'code_commune',
+        'id_commune',
         'id_fonkotany',
         'id_off'
     ];
 
     use HasFactory;
+
+    public function acte()
+    {
+        return $this->belongsTo(Type::class, 'id_type');
+    }
 }

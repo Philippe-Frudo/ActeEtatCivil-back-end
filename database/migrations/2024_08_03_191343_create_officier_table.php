@@ -17,9 +17,10 @@ return new class extends Migration
             $table->string('prenom_off', 30)->nullable(false);
             $table->string('sexe_off', 1)->nullable(false);
             $table->string('email_off', 30)->unique()->nullable(false);
-            $table->string('motPass_off', 30)->nullable(false);
+            $table->string('motPass_off', 255)->nullable(false);
             $table->boolean('isConnect')->default(false);
             $table->boolean('isDelete')->default(false);
+            $table->boolean('isConfirmAdmin')->default(false);
 
             $table->unsignedBigInteger('id_commune')->nullable(false);
 
