@@ -30,6 +30,7 @@ Route::apiResource('/officiers', OfficierController::class);
 
 Route::post('/officiers/auth', [OfficierController::class, 'authentication']);
 
+
 Route::apiResource('/regions', RegionController::class);
 
 Route::post('/addAllRegion', [RegionController::class, 'addAllRegion']);
@@ -59,12 +60,19 @@ Route::put('travails/{id_tavail}', [TravailController::class, 'update']);
 
 Route::apiResource('/personnes', PersonneController::class);
 
-Route::get('/lastPersonne', [TravailController::class, 'lastPersonne']);
+Route::get('/lastPersonne', [PersonneController::class, 'lastPersonne']);
+
 
 
 
 Route::apiResource('/actes', ActeController::class);
 
+Route::get('/getDetail/{id_acte}', [ActeController::class, "getDetail"]);
+
+Route::post('/findNum', [ActeController::class, "verifyNumActe"]);
+
+
 Route::get('/typesActe', [ActeController::class, 'getTypesActe']);
 
-Route::get('/birthday', [ActeController::class, 'groupBirthday']);
+Route::get('/yearBirthday', [ActeController::class, 'groupBirthday']);
+// Route::get('/getAll', [ActeController::class, 'getAll']);

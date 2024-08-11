@@ -101,9 +101,10 @@ class OfficierController extends Controller
      */
     public function destroy(int $id)
     {
+
         $officier = $this->officier->find($id);
         if ($officier) {
-            return response()->json(['status' => false, 'Cette f0nkotany n\'eSxiste pas'], 404);
+            return response()->json(['status' => false, 'Cette f0nkotany n\'existe pas'], 404);
         }
         $resp = $officier->delete();
         if (!$resp) {
@@ -118,7 +119,10 @@ class OfficierController extends Controller
      */
     public function authentication(Request $request)
     {
-        $officier = $this->officier->find($request->email_off);
+        if (!$request->email_off || !$request->motPass_off) {
+            return response()->json(['status' => false, 'Verifier votre champ'], 404);
+        }
+        $officier = $this->officier->where('email_off', $request->email_off)->first();
 
         if (!$officier) {
             return response()->json(['status' => false, 'message' => 'Email ou mot de passe oublier'], 404);

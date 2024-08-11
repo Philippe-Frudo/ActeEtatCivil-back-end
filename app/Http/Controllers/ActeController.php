@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Acte;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use PhpParser\Builder\Param;
 
 class ActeController extends Controller
 {
@@ -16,75 +17,135 @@ class ActeController extends Controller
         $this->acte = new Acte();
     }
 
-
     public function getTypesActe()
     {
         $typesDataActe = DB::table('type')->get();
-        return  $typesDataActe;
-    }
-
-    /**
-     * Display a listing of the resource.
-     */
-    public function getActes(Request $request)
-    {
-        $id_fonkotany = $request->id_fonkotany;  // Exemple: peut être null ou 2, etc.
-        $id_commune = $request->id_commune;
-        $id_region = $request->id_region;
-
-        $result = $this->acte->query()
-            ->select(
-                'personnes.nom_person',
-                'personnes.prenom_person',
-                'personnes.sexe_person',
-                'actes.date_acte',
-                'actes.id_acte',
-                'actes.id_type',
-                'actes.date_enreg',
-                'actes.id_enreg',
-                'actes.nom_temoin',
-                'actes.prenom_temoin',
-                'fonkotany.code_fonkotany',
-                'fonkotany.nom_fonkotany',
-                'communes.code_commune',
-                'communes.nom_commune',
-                'regions.code_region',
-                'regions.nom_region'
-            )
-            ->join('personnes', 'actes.id_person', '=', 'personnes.id_person')
-            ->join('fonkotany', 'actes.id_fonkotany', '=', 'fonkotany.id_fonkotany')
-            ->join('communes', 'actes.id_commune', '=', 'communes.id_commune')
-            ->join('regions', 'actes.id_region', '=', 'regions.id_region')
-            ->when($id_fonkotany, function ($query, $id_fonkotany) {
-                return $query->where('fonkotany.id_fonkotany', $id_fonkotany);
-            })
-            ->when($id_commune, function ($query, $id_commune) {
-                return $query->where('communes.id_commune', $id_commune);
-            })
-            ->when($id_region, function ($query, $id_region) {
-                return $query->where('regions.id_region', $id_region);
-            })
-            ->orderBy('actes.id_acte')
-            ->get();
-
-
-        return $result;
+        return  response()->json($typesDataActe);
     }
 
 
-
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Request $request)
     {
-        $acte = $this->acte->all();
-        if (!$acte) {
-            return response()->json(['status' => false, 'message' => "Objet vide"], 404);
+        $filterType = (int) $request->query('id');
+        $filterFonkotany = (int) $request->query('fonkotany');
+        $filterCommune = (int) $request->query('commune');
+        $filterDistrict = (int) $request->query('district');
+        $filterRegion = (int) $request->query('region');
+
+        $query = $this->acte->select(
+            'personne.*',
+            'acte.*',
+            'travail.nom_travail',
+            'fonkotany.code_fonkotany',
+            'fonkotany.nom_fonkotany',
+            'district.code_district',
+            'district.nom_district',
+            'commune.code_commune',
+            'commune.nom_commune',
+            'region.code_region',
+            'region.nom_region',
+            'officier.nom_off',
+            'officier.prenom_off'
+        )
+            ->join('personne', 'personne.id_person', '=', 'acte.id_person')
+            ->join('travail', 'travail.id_travail', '=', 'personne.id_travail')
+            ->join('fonkotany', 'acte.id_fonkotany', '=', 'fonkotany.id_fonkotany')
+            ->join('commune', 'commune.id_commune', '=', 'acte.id_commune')
+            ->join('district', 'district.id_district', '=', 'commune.id_district')
+            ->join('region', 'region.id_region', '=', 'district.id_region')
+            ->join('officier', 'officier.id_off', '=', 'acte.id_off')
+            ->when($filterType, function ($query, $filterType) {
+                return $query->where('acte.id_type', $filterType);
+            })
+            ->when($filterFonkotany, function ($query, $filterFonkotany) {
+                return $query->where('acte.id_fonkotany', $filterFonkotany);
+            })
+            ->when($filterCommune, function ($query, $filterCommune) {
+                return $query->where('acte.id_commune', $filterCommune);
+            })
+            ->when($filterDistrict, function ($query, $filterDistrict) {
+                return $query->where('district.id_district', $filterDistrict);
+            })
+            ->when($filterRegion, function ($query, $filterRegion) {
+                return $query->where('region.id_region', $filterRegion);
+            })
+            ->orderBy('acte.id_acte');
+
+
+        $results = $query->get();
+        if ($results->isEmpty()) {
+            return null;
         }
 
-        // return [];
+        $actes = [];
+        foreach ($results as $result) {
+            $actes[] = [
+                "id_acte" => $result->id_acte,
+                "nom_personne" => $result->nom_person,
+                "prenom_personne" => $result->prenom_person,
+                "sexe_personne" => $result->sexe_person,
+                "adrsesse_personne" => $result->adrs_person,
+                "nom_travail_personne" => $result->nom_travail,
 
+                "numero_acte" => $result->num_acte,
+                "type_acte" => DB::table('type')->where('id_type', $result->id_type)->first()->nom_type,
+                "date_acte" => $result->date_acte,
+                "heure_acte" => $result->heure_acte,
+                "date_enreg" => $result->date_enreg,
+                "heure_enreg" => $result->heure_enreg,
+
+                "lieu_acte" => $result->lieu_acte,
+                "fonkotany" => $result->nom_fonkotany, //. '(' . $result->code_fonkotany . ')',
+                "district" => $result->nom_district,  //.'(' . $result->code_district . ')',
+                "commune" => $result->nom_commune, // . '(' . $result->code_commune . ')',
+                "region" => $result->nom_region, // . '(' . $result->code_region . ')',
+
+                "nom_mere" => $result->nom_m,
+                "prenom_mere" => $result->prenom_m,
+                "date_naissance_mere" => $result->date_nais_m,
+                "lieu_naissance_mere" => $result->lieu_nais_m,
+                "age_mere" => $result->age_m,
+                "profession_mere" => $result->profession_m,
+                "adresse_mere" => $result->adrs_m,
+
+                "noms_pere" => $result->nom_p,
+                "prenom_pere" => $result->prenom_p,
+                "date_naissance_pere" => $result->date_nais_p,
+                "lieu_naissance_pere" => $result->lieu_nais_p,
+                "age_pere" => $result->age_p,
+                "profession_pere" => $result->profession_p,
+                "adresse_pere" => $result->adrs_p,
+
+                "nom_temoin" => $result->nom_temoin,
+                "prenom_temoin" => $result->prenom_temoin,
+                "sexe_temoin" => $result->sexe_temoin,
+                "date_naissance_temoin" => $result->date_nais_temoin,
+                "lieu_naissance_temoin" => $result->lieu_nais_temoin,
+                "age_temoin" => $result->age_temoin,
+                "adresse_temoin" => $result->adrs_temoin,
+                "profession_temoin" => $result->profession_temoin,
+
+                "nom_officier" => $result->nom_off,
+                "prenom_officier" => $result->prenom_off,
+
+                "id_commune" => $result->id_commune,
+                "id_officier" => $result->id_off,
+            ];
+        }
+
+        return $actes;
+    }
+
+
+
+
+    public function show(int $id)
+    {
+        // return $id;
+        $acte = $this->acte->find($id);
+        if (!$acte) {
+            return null;
+        }
         return $acte;
     }
 
@@ -94,81 +155,174 @@ class ActeController extends Controller
      */
     public function store(Request $request)
     {
-        $acte = $this->acte->create($request->all());
-        if (!$acte) {
-            return response()->json(['status' => false, 'message' => "Un erreur s'est produit lors de l'ajout"], 404);
+        $numero = $this->acte->where("num_acte", $request->num_acte)->where("id_type", $request->id_type)->first();
+        if ($numero) {
+            return $numero->num_acte;
         }
-        return response()->json(['status' => true, 'message' => "Une nouvelle acte a été ajouté"], 201);
+
+        $acte = $this->acte->create($request->all());
+        // return $request;
+        if (!$acte) {
+            return 0;
+        }
+        return 1;
     }
 
 
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function getDetail(int $id)
     {
-        $acte = $this->acte->find($id);
-        if (!$acte) {
-            return response()->json(['status' => false, 'message' => "Le acte est introuvable"], 500);
+        $result = $this->acte->select(
+            'personne.*',
+            'acte.*',
+            'travail.*',
+            'fonkotany.*',
+            'district.code_district',
+            'district.nom_district',
+            'commune.code_commune',
+            'commune.nom_commune',
+            'region.code_region',
+            'region.nom_region',
+            'officier.nom_off',
+            'officier.prenom_off'
+        )
+            ->join('personne', 'personne.id_person', '=', 'acte.id_person')
+            ->join('travail', 'travail.id_travail', '=', 'personne.id_travail')
+            ->join('fonkotany', 'acte.id_fonkotany', '=', 'fonkotany.id_fonkotany')
+            ->join('commune', 'commune.id_commune', '=', 'acte.id_commune')
+            ->join('district', 'district.id_district', '=', 'commune.id_district')
+            ->join('region', 'region.id_region', '=', 'district.id_region')
+            ->join('officier', 'officier.id_off', '=', 'acte.id_off')
+            ->where('acte.id_acte', $id)
+            ->first();
+
+        if (!$result) {
+            return null;
         }
-        return response()->json($acte, 200);
+
+        return [
+            "id_acte" => $result->id_acte,
+            "id_person" => $result->id_person,
+            "nom_person" => $result->nom_person,
+            "prenom_person" => $result->prenom_person,
+            "sexe_person" => $result->sexe_person,
+            "adrs_person" => $result->adrs_person,
+            "nom_travail" => $result->nom_travail,
+            "id_travail" => $result->nom_travail,
+
+            "num_acte" => $result->num_acte,
+            "id_type" => $result->id_type,
+            "type_acte" => DB::table('type')->where('id_type', $result->id_type)->first()->nom_type,
+            "date_acte" => $result->date_acte,
+            "heure_acte" => $result->heure_acte,
+            "date_enreg" => $result->date_enreg,
+            "heure_enreg" => $result->heure_enreg,
+
+            "lieu_acte" => $result->lieu_acte,
+            "nom_fonkotany" => $result->nom_fonkotany,
+            "nom_district" => $result->nom_district,
+            "nom_commune" => $result->nom_commune,
+            "nom_region" => $result->nom_region,
+
+            "nom_m" => $result->nom_m,
+            "prenom_m" => $result->prenom_m,
+            "date_nais_m" => $result->date_nais_m,
+            "lieu_nais_m" => $result->lieu_nais_m,
+            "age_m" => $result->age_m,
+            "profession_m" => $result->profession_m,
+            "adrs_m" => $result->adrs_m,
+
+            "nom_p" => $result->nom_p,
+            "prenom_p" => $result->prenom_p,
+            "date_nais_p" => $result->date_nais_p,
+            "lieu_nais_p" => $result->lieu_nais_p,
+            "age_p" => $result->age_p,
+            "profession_p" => $result->profession_p,
+            "adrs_p" => $result->adrs_p,
+
+            "nom_temoin" => $result->nom_temoin,
+            "prenom_temoin" => $result->prenom_temoin,
+            "sexe_temoin" => $result->sexe_temoin,
+            "date_nais_temoin" => $result->date_nais_temoin,
+            "lieu_nais_temoin" => $result->lieu_nais_temoin,
+            "age_temoin" => $result->age_temoin,
+            "adrs_temoin" => $result->adrs_temoin,
+            "profession_temoin" => $result->profession_temoin,
+
+            "nom_off" => $result->nom_off,
+            "prenom_off" => $result->prenom_off,
+
+            "id_commune" => $result->id_commune,
+            "id_fonkotany" => $result->id_fonkotany,
+            "id_off" => $result->id_off,
+        ];
     }
 
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function update(Request $request, int $id)
     {
         $acte = $this->acte->find($id);
-
         if (!$acte) {
-            return response()->json(['status' => true, 'message' => "Acte introuvable"], 500);
+            return null;
         }
 
         $resp = $acte->update($request->all());
-
         if (!$resp) {
-            return response()->json(['status' => false, 'message' => "Une erruer s'est produit lors de l'ajout du acte"], 500);
+            return 0;
         }
-        return response()->json(['status' => true, 'message' => "Modification reuissi"], 200);
+        return 1;
     }
 
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(string $id)
     {
-
         $acte = $this->acte->find($id);
         if (!$acte) {
-            return response()->json(['status' => false, 'message' => "Acte introuvable"], 500);
+            return null;
         }
+
+        $idPersonne = $acte->id_person;
 
         $resp = $acte->delete();
-        if (!$resp) {
-            return response()->json(['status' => false, 'message' => "Une erruer s'est produit lors de la suppression du acte"], 500);
+
+        // Rechercher encor s'il c'est encore utiliser ?
+        $secondActe = $this->acte->where("id_person", $idPersonne)->first();
+        if (!$secondActe) {
+            return null;
         }
 
-        return response()->json(['status' => true, 'message' => "Suppression reuissi"], 200);
+        return $idPersonne;
     }
 
 
-
-    /**
-     * Display a listing of the resource.
-     */
     public function groupBirthday()
     {
-        $actesParAnnee = $this->acte->select(DB::raw('YEAR(date_acte) as annee'), DB::raw('count(*) as nombre_actes'))
+        $results = $this->acte->select(DB::raw('YEAR(date_acte) as annee'), DB::raw('count(*) as nombre_actes'))
             ->groupBy('annee')
             ->orderBy('annee', 'asc')
             ->get();
 
-        if (!$actesParAnnee) {
-            return $actesParAnnee;
+        if (!$results) {
+            return null;
         }
-        return "vide";
+        return $results;
+    }
+
+
+    public function verifyNumActe(Request $request)
+    {
+        $numero = $request->numero;
+        $type = $request->type;
+
+        if ($numero && $type) {
+            $result = $this->acte->where("num_acte", $numero)->where("id_type", $type)->first();
+            if (!$result) {
+                return null;
+            }
+            return $result->num_acte;
+        }
+        return null;
     }
 }

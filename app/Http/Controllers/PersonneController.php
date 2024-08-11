@@ -20,7 +20,9 @@ class PersonneController extends Controller
      */
     public function index()
     {
-        return $this->personne->all();
+        return $this->personne->select('personne.*', 'travail.nom_travail')
+            ->join('travail', 'travail.id_travail', '=', 'personne.id_travail')
+            ->get();
     }
 
     /**
@@ -29,24 +31,24 @@ class PersonneController extends Controller
     public function store(Request $request)
     {
         $personne = $this->personne->create($request->all());
-        if (!$personne) {
-            return response()->json(['status' => false, 'message' => "Donner introuvable"], 404);
+        if ($personne) {
+
+            // Utilisation de latest (si la colonne est bien id_person)
+            $idPerson = Personne::latest('id_person')->first()->id_person;
+            if (!$idPerson) {
+                return null;
+            }
+
+            return $idPerson;
         }
 
-
-        // Utilisation de latest (si la colonne est bien id_person)
-        $idPerson = Personne::latest('id_person')->first()->id_person;
-        if ($idPerson) {
-            return response()->json(['status' => true, 'data' =>  $idPerson], 200);
-        }
-
-        return response()->json(['status' => false, 'message' => "Une erreur s'est produit"], 404);
+        return null;
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(int $id)
     {
         $personne = $this->personne->find($id);
         if (!$personne) {
@@ -58,15 +60,40 @@ class PersonneController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, int $id)
     {
-        $personne = $this->personne->find($id);
-        if ($personne) {
+        return $request;
+        $perso = $this->personne->find($id);
+        if (!$perso) {
             return response()->json(['status' => false, 'message' => " donne introuvablee "], 404);
         }
-        $resp = $personne->update($request->all());
+
+        $resp = $perso->update(
+            $request->all()
+            // [
+            //     'nom_person' => $request->nom_person,
+            //     'prenom_person' => $request->nom_person,
+            //     'sexe_person' => $request->nom_person,
+            //     'adrs_person' => $request->nom_person,
+            //     'nom_m' => $request->nom_person,
+            //     'prenom_m' => $request->nom_person,
+            //     'date_nais_m' => $request->nom_person,
+            //     'lieu_nais_m' => $request->nom_person,
+            //     'age_m' => $request->nom_person,
+            //     'profession_m' => $request->nom_person,
+            //     'adrs_m' => $request->nom_person,
+            //     'nom_p' => $request->nom_person,
+            //     'prenom_p' => $request->nom_person,
+            //     'date_nais_p' => $request->nom_person,
+            //     'lieu_nais_p' => $request->nom_person,
+            //     'age_p' => $request->nom_person,
+            //     'profession_p' => $request->nom_person,
+            //     'adrs_p' => $request->nom_person,
+            //     'id_travail' => $request->nom_person,
+            // ]
+        );
         if (!$resp) {
-            return response()->json(['status' => false, 'Une erreur s\'est produit'], 200);
+            return response()->json(['status' => false, 'Une erreur s\'est produit'], 404);
         }
         return response()->json(['status' => true, 'message' => "Modification reuissi"], 201);
     }
@@ -76,11 +103,12 @@ class PersonneController extends Controller
      */
     public function destroy(string $id)
     {
-        $personne = $this->personne->find($id);
-        if ($personne) {
-            return response()->json(['status' => false, 'Cette f0nkotany n\'eSxiste pas'], 404);
+        $perso = $this->personne->find($id);
+        if (!$perso) {
+            return response()->json(['status' => false, 'Cette personne n\'est pas trouvé'], 404);
         }
-        $resp = $personne->delete();
+
+        $resp = $perso->delete();
         if (!$resp) {
             return response()->json(['status' => false, 'message' => "Une erruer s'est produit lors de la suppression du personne"], 500);
         }
