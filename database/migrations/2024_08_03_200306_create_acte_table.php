@@ -20,14 +20,14 @@ return new class extends Migration
             $table->date('date_enreg')->nullable(false);
             $table->time('heure_enreg')->nullable(false);
 
-            $table->string('nom_temoin', 30)->nullable(false);
+            $table->string('nom_temoin', 30);
             $table->string('prenom_temoin', 50);
-            $table->string('sexe_temoin', 1)->nullable(false);
-            $table->date('date_nais_temoin')->nullable(false);
+            $table->string('sexe_temoin', 1);
+            $table->date('date_nais_temoin');
             $table->string('lieu_nais_temoin', 100);
             $table->string('age_temoin', 2);
             $table->string('adrs_temoin', 100);
-            $table->string('profession_temoin', 30);
+            $table->string('profession_temoin', 50);
 
             $table->unsignedBigInteger('id_type')->nullable(false);
             $table->unsignedBigInteger('id_person')->nullable(false);

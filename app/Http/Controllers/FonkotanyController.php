@@ -21,16 +21,13 @@ class FonkotanyController extends Controller
     public function index()
     {
         $fonkotanyData = $this->fonkotany->join('commune', 'fonkotany.id_commune', '=', 'commune.id_commune')
-            ->select('fonkotany.id_fonkotany', 'fonkotany.code_fonkotany', 'fonkotany.nom_fonkotany', 'commune.code_commune')
+            ->select('fonkotany.*', 'commune.code_commune')
             ->get();
         return $fonkotanyData;
     }
 
 
-
-    /**
-     * Store a newly created resource in storage.
-     */
+    
     public function addAllfonkotany(Request $request)
     {
         // return $request;

@@ -57,9 +57,7 @@ class PersonneController extends Controller
         return response()->json($personne, 201);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
+
     public function update(Request $request, int $id)
     {
         return $request;
@@ -68,30 +66,7 @@ class PersonneController extends Controller
             return response()->json(['status' => false, 'message' => " donne introuvablee "], 404);
         }
 
-        $resp = $perso->update(
-            $request->all()
-            // [
-            //     'nom_person' => $request->nom_person,
-            //     'prenom_person' => $request->nom_person,
-            //     'sexe_person' => $request->nom_person,
-            //     'adrs_person' => $request->nom_person,
-            //     'nom_m' => $request->nom_person,
-            //     'prenom_m' => $request->nom_person,
-            //     'date_nais_m' => $request->nom_person,
-            //     'lieu_nais_m' => $request->nom_person,
-            //     'age_m' => $request->nom_person,
-            //     'profession_m' => $request->nom_person,
-            //     'adrs_m' => $request->nom_person,
-            //     'nom_p' => $request->nom_person,
-            //     'prenom_p' => $request->nom_person,
-            //     'date_nais_p' => $request->nom_person,
-            //     'lieu_nais_p' => $request->nom_person,
-            //     'age_p' => $request->nom_person,
-            //     'profession_p' => $request->nom_person,
-            //     'adrs_p' => $request->nom_person,
-            //     'id_travail' => $request->nom_person,
-            // ]
-        );
+        $resp = $perso->update($request->all());
         if (!$resp) {
             return response()->json(['status' => false, 'Une erreur s\'est produit'], 404);
         }

@@ -18,7 +18,11 @@ class Officier extends Model
         'sexe_off',
         'email_off',
         'motPass_off',
-        'id_commune'
+        'id_commune',
+        'isDelete',
+        'isConnect',
+        'isConfirm',
+        'isAdmin',
     ];
 
     use HasFactory;
