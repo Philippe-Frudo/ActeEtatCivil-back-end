@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Acte;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use PhpParser\Builder\Param;
@@ -297,19 +298,6 @@ class ActeController extends Controller
     }
 
 
-    public function groupBirthday()
-    {
-        $results = $this->acte->select(DB::raw('YEAR(date_acte) as annee'), DB::raw('count(*) as nombre_actes'))
-            ->groupBy('annee')
-            ->orderBy('annee', 'asc')
-            ->get();
-
-        if (!$results) {
-            return null;
-        }
-        return $results;
-    }
-
 
     public function verifyNumActe(Request $request)
     {
@@ -324,5 +312,86 @@ class ActeController extends Controller
             return $result->num_acte;
         }
         return null;
+    }
+
+
+    // Nombre d'acte de naissance
+    public function countNaissance()
+    {
+        $results = $this->acte->where('id_type', 1)->count();
+        if (!$results) {
+            return 0;
+        }
+        return $results;
+    }
+
+
+    // Nombre de naissance regrouper par l'annee de naisance
+    public function groupBirthday()
+    {
+        $results = $this->acte->select(DB::raw('YEAR(date_acte) as annee'), DB::raw('count(*) as nombre_actes'))
+            ->where('id_type', 1)
+            ->groupBy('annee')
+            ->orderBy('annee', 'asc')
+            ->get();
+
+        if (!$results) {
+            return 0;
+        }
+        return $results;
+    }
+
+
+
+    // Nombre d'enregistrement Aujourd'Hui
+    public function registerToday()
+    {
+        $results = $this->acte->whereDate('created_at', Carbon::today())
+
+            ->count();
+        if (!$results) {
+            return 0;
+        }
+        return $results;
+    }
+
+
+
+    // Nombre d'enregistrement par mois;
+    public function getEnregistrementsParMois()
+    {
+        // Récupérer l'année actuelle
+        $currentYear = Carbon::now()->year;
+    
+        // Récupérer le nombre d'enregistrements par mois pour l'année actuelle
+        $enregistrements = $this->acte
+            ->select(DB::raw('MONTH(created_at) as month'), DB::raw('COUNT(*) as count'))
+            ->whereYear('created_at', $currentYear)
+            ->groupBy(DB::raw('MONTH(created_at)'))
+            ->pluck('count', 'month')
+            ->toArray();
+    
+        // Créer un tableau avec tous les mois de l'année avec des valeurs par défaut de 0
+        $monthlyCounts = array_fill(1, 12, 0);
+    
+        // Remplir les valeurs avec les données récupérées
+        foreach ($enregistrements as $month => $count) {
+            $monthlyCounts[$month] = $count;
+        }
+    
+        return response()->json($monthlyCounts);
+    }
+
+
+    // Nombre d'enregistrement Aujourd'Hui
+    public function groupBirthdayWithCommune()
+    {
+        $results = $this->acte->whereDate('created_at', Carbon::today())
+            ->count();
+
+        if (!$results) {
+            return null;
+        }
+        return $results;
     }
 }

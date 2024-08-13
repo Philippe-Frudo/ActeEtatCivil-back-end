@@ -26,11 +26,24 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+// ============= ROUTE OFFICIER (UTILISATEUR) ============== ====
 Route::apiResource('/officiers', OfficierController::class);
 
 Route::post('/officiers/auth', [OfficierController::class, 'authentication']);
 
+Route::post('/officiers/verifyConnect', [OfficierController::class, 'verifyConnect']);
 
+Route::post('/officiers/confirm', [OfficierController::class, 'confirmOfficier']);
+
+Route::post('/officiers/delete', [OfficierController::class, 'deleteOfficier']);
+
+Route::post('/officiers/logOut', [OfficierController::class, 'logOut']);
+
+Route::get('/nombreOfficier', [OfficierController::class, 'nombreOfficier']);
+
+
+
+// ============= ROUTE REGION ===================
 Route::apiResource('/regions', RegionController::class);
 
 Route::post('/addAllRegion', [RegionController::class, 'addAllRegion']);
@@ -74,5 +87,14 @@ Route::post('/findNum', [ActeController::class, "verifyNumActe"]);
 
 Route::get('/typesActe', [ActeController::class, 'getTypesActe']);
 
+Route::get('/countNaissance', [ActeController::class, 'countNaissance']);
+
+
 Route::get('/yearBirthday', [ActeController::class, 'groupBirthday']);
+
+Route::get('/registerToday', [ActeController::class, 'registerToday']);
+
+Route::get('/getEnregistrementsParMois', [ActeController::class, 'getEnregistrementsParMois']);
+
+Route::get('/groupBirthdayWithCommune', [ActeController::class, 'groupBirthdayWithCommune']);
 // Route::get('/getAll', [ActeController::class, 'getAll']);
