@@ -8,7 +8,6 @@ use Illuminate\Http\Request;
 
 class CommuneController extends Controller
 {
-
     protected $commune;
 
     public function __construct()
@@ -28,24 +27,23 @@ class CommuneController extends Controller
         return $communeData;
     }
 
-    
+
     /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
-        $foundCommune = $this->commune->where('code_commune', $$request['code_commune'])->first();
+        $foundCommune = $this->commune->where('code_commune', $request['code_commune'])->first();
         if (!$foundCommune) {
 
             $response = $this->commune->create($request->all());
 
             if (!$response) {
-                return response()->json(['status' => false, 'message' => "Erreur lors de l'ajout"], 404);
+                return response()->json(['status' => false, 'message' => "Erreur lors de l'ajout"]);
             }
-        } else {
-            return response()->json(['status' => true, 'C\'est commune existe deja dans la base de donnee'], 200);
+            return response()->json(['status' => true, "message" => 'Une nouvelle commune a été ajouté']);
         }
-        return response()->json(['status' => true, 'Une nouvelle commune a été ajouté'], 200);
+        return response()->json(['status' => false, "message" => 'Cette commune existe deja dans la base de donnee']);
     }
 
 
@@ -123,13 +121,13 @@ class CommuneController extends Controller
     {
         $commune = $this->commune->find($id);
         if (!$commune) {
-            return response()->json(['status' => false, 'message' => "Ce commune n'existe pas"], 404);
+            return "Ce commune n'existe pas";
         }
 
         $response = $commune->delete();
         if (!$response) {
-            return response()->json(['status' => false, 'message' => "Un erreur s'est produit lors de la suppression"], 500);
+            return "Un erreur s'est produit lors de la suppression";
         }
-        return response()->json(['status' => false, 'message' => "Suppression reuissi"], 200);
+        return "Suppression reuissi";
     }
 }

@@ -34,12 +34,18 @@ class DistrictController extends Controller
      */
     public function store(Request $request)
     {
-        $district = $this->district->created($request->all());
+        $district = $this->district->where('code_district', $request->code_district)->first();
+        
         if (!$district) {
-            return response()->json(['status' => false, 'message' => "Erreur lors de l'ajout"], 404);
+
+            $response = $this->district->created($request->all());
+            if (!$response) {
+                return response()->json(['status' => false, 'message' => "une erreur s'est produit lors de l'ajout"]);
+            }
+            return response()->json(['status' => true, 'Une nouvelle region a été creé'], 200);
         }
 
-        return response()->json(['status' => true, 'Une nouvelle region a été creé'], 200);
+        return response()->json(['status' => false, 'Ce district existe déjà dans la base.']);
     }
 
 

@@ -268,16 +268,16 @@ class OfficierController extends Controller
     // Confirm Officier (utilisateur)
     public function confirmOfficier(Request $request)
     {
-        $result = $this->officier->find($request->id)->first();
+        $result = $this->officier->find($request->id);
         if (!$result) {
             return null;
         }
+
         $resp = $result->update(['isConfirm' => 1]);
 
         if (!$resp) {
             return 0;
         }
-
         return 1;
     }
 
@@ -286,7 +286,7 @@ class OfficierController extends Controller
     // Delete Officier (utilisateur)
     public function deleteOfficier(Request $request)
     {
-        $result = $this->officier->find($request->id)->first();
+        $result = $this->officier->find($request->id);
         if (!$result) {
             return null;
         }

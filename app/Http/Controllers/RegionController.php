@@ -28,16 +28,19 @@ class RegionController extends Controller
      */
     public function store(Request $request)
     {
-        $region = $this->region->create($request->all());
+        $region = $this->region->where('code_region', $request->code_region)->first();
+
         if (!$region) {
-            return response()->json(['status' => false, 'message' => "Un erreur s'est produit lors d'enregistrement"], 500);
+            $response = $this->region->create($request->all());
+            if (!$response) {
+                return ['status' => false, 'message' => "Un erreur s'est produit lors d'enregistrement"];
+            }
+            return ['status' => true, 'message' => "Une nouvelle region a été ajouté"];
         }
-        return response()->json(['status' => false, 'message' => "Une nouvelle region a été ajouté"], 201);
+        return ['status' => false, 'message' => 'Cette région existe déjà dans la base.'];
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+
     public function addAllRegion(Request $request)
     {
         $requests = json_decode($request->getContent(), true); // decodage du JSON
@@ -76,13 +79,13 @@ class RegionController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, int $id)
     {
-        $region = $this->region->find($request->id_region);
+        $region = $this->region->find($id);
 
         // Vérifier si l'enregistrement est trouvé
         if (!$region) {
-            return response()->json(['status' => false, 'message' => 'region non trouvé'], 404);
+            return response()->json(['status' => false, 'message' => 'region non trouvé']);
         }
 
         // Mettre à jour le nom du region
