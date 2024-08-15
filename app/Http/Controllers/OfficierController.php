@@ -70,6 +70,7 @@ class OfficierController extends Controller
                 'officier.nom_off',
                 'officier.prenom_off',
                 'officier.sexe_off',
+                'officier.email_off',
                 'officier.isConnect',
                 'officier.isAdmin',
                 'officier.isConfirm',

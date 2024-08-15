@@ -81,11 +81,12 @@ class RegionController extends Controller
      */
     public function update(Request $request, int $id)
     {
+        // $region = $this->region->where('id_region', $id)->where('code_region', $request->code_region)->first();
         $region = $this->region->find($id);
 
         // Vérifier si l'enregistrement est trouvé
         if (!$region) {
-            return response()->json(['status' => false, 'message' => 'region non trouvé']);
+            return response()->json(['status' => false, 'message' => 'Cette région est introuvable']);
         }
 
         // Mettre à jour le nom du region

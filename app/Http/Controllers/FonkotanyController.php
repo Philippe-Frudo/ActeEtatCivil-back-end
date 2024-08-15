@@ -82,7 +82,7 @@ class FonkotanyController extends Controller
             return response()->json(['status' => true, 'message' => "Une nouvelle fonkotany a été ajouté"]);
         }
 
-        return response()->json(['status' => false, 'Ce fonkotany existe déjà dans la base.']);
+        return response()->json(['status' => false, 'message' => 'Ce fonkotany existe déjà dans la base.']);
     }
 
     /**
@@ -104,7 +104,7 @@ class FonkotanyController extends Controller
     {
         $fonkotany = $this->fonkotany->find($id);
         if (!$fonkotany) {
-            return response()->json(['status' => false, 'Donnee introuvable'], 404);
+            return response()->json(['status' => false, 'Ce fonkotany est introuvable'], 404);
         }
 
         $resp = $fonkotany->update($request->all());

@@ -102,9 +102,10 @@ class CommuneController extends Controller
     public function update(Request $request, string $id)
     {
 
+        // $commune = $this->commune->where("id_commune", $id)->where("code_commune", $request->code_commune)->first();
         $commune = $this->commune->find($id);
         if (!$commune) {
-            return response()->json(['status' => false, 'message' => "Cette commune n'existe pas"], 404);
+            return response()->json(['status' => false, 'message' => "Cette commune est introuvable"], 404);
         }
 
         $response = $commune->update($request->all());
