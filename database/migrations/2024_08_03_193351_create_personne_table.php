@@ -14,23 +14,23 @@ return new class extends Migration
         Schema::create('personne', function (Blueprint $table) {
             $table->id('id_person');
             $table->string('nom_person', 30)->nullable(false);
-            $table->string('prenom_person', 50);
+            $table->string('prenom_person', 50)->nullable(true);;
             $table->string('sexe_person', 1)->nullable(false);
             $table->string('adrs_person')->nullable(true);
 
             $table->string('nom_m', 30)->nullable(false);
-            $table->string('prenom_m', 50);
+            $table->string('prenom_m', 50)->nullable(true);;
             $table->date('date_nais_m')->nullable(false);
             $table->string('lieu_nais_m', 100)->nullable(false);
             $table->string('age_m', 5)->nullable(false);
-            $table->string('profession_m', 50);
+            $table->string('profession_m', 50)->nullable(false);;
             $table->string('adrs_m', 100)->nullable(false);
 
             $table->string('nom_p', 30)->nullable(false);
-            $table->string('prenom_p', 50);
+            $table->string('prenom_p', 50)->nullable(true);;
             $table->date('date_nais_p')->nullable(false);
             $table->string('lieu_nais_p', 100)->nullable(false);
-            $table->string('age_p', 3);
+            $table->string('age_p', 3)->nullable(false);;
             $table->string('profession_p', 50)->nullable(false);
             $table->string('adrs_p', 100)->nullable(false);
             $table->unsignedBigInteger('id_travail')->nullable(false);
