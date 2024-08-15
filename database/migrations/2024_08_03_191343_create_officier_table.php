@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id('id_off');
             $table->string('nom_off', 30)->nullable(false);
             $table->string('prenom_off', 30)->nullable(true);
-            $table->string('sexe_off', 1)->nullable(true);
+            $table->string('sexe_off', 1)->nullable(false);
             $table->string('email_off', 100)->unique()->nullable(false);
             $table->string('motPass_off', 255)->nullable(false);
             $table->boolean('isConnect')->default(false);
