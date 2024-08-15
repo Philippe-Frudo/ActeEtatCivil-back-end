@@ -34,12 +34,19 @@ class DistrictController extends Controller
      */
     public function store(Request $request)
     {
-        $district = $this->district->created($request->all());
+        $district = $this->district->where('code_district', $request->code_district)->first();
+
+
         if (!$district) {
-            return response()->json(['status' => false, 'message' => "Erreur lors de l'ajout"], 404);
+
+            $response = $this->district->create($request->all());
+            if (!$response) {
+                return response()->json(['status' => false, 'message' => "une erreur s'est produit lors de l'ajout"]);
+            }
+            return response()->json(['status' => true, 'message' => 'Une nouvelle region a été creé'], 200);
         }
 
-        return response()->json(['status' => true, 'Une nouvelle region a été creé'], 200);
+        return response()->json(['status' => false, 'message' => 'Ce code district existe déjà dans la base.']);
     }
 
 
@@ -72,7 +79,7 @@ class DistrictController extends Controller
                 ]);
             } else {
                 // Stockage des informations sur les districts existants ou avec une région invalide
-                $districtExist[$i] = $district['code_district'] . ' ' . $district['nom_district'] . '  region:' . $district['code_region'];
+                $districtExist[$i] = $district['code_district'] . ' ' . $district['nom_district'] . '  region:' . $district['code_region'] . ', ';
                 $i++;
             }
         }
@@ -99,9 +106,10 @@ class DistrictController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        // $district = $this->district->where("id_district", $request->id_district)->where("code_district", $request->code_district)->first();
         $district = $this->district->find($id);
         if (!$district) {
-            return response()->json(['status' => false, 'message' => "Ce district n'existe pas"], 404);
+            return response()->json(['status' => false, 'message' => "Ce district est introuvable"], 404);
         }
 
         $response = $district->update($request->all());
@@ -109,7 +117,7 @@ class DistrictController extends Controller
             return response()->json(['status' => false, 'message' => "Erreur de la modification"], 500);
         }
 
-        return response()->json(['status' => true, 'Modification reuissi'], 200);
+        return response()->json(['status' => true, 'message' => 'Modification reuissi'], 200);
     }
 
 

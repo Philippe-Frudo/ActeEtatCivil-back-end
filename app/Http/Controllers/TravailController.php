@@ -33,16 +33,13 @@ class TravailController extends Controller
             $this->travail->create([
                 'nom_travail' => $request['nom_travail']
             ]);
-        } else {
-            return response()->json(['status' => false, 'message' => "C'est travail est dejà existe"]);
+            return response()->json(['status' => true, 'message' => "Une nouvelle travaille a été ajouté"]);
         }
-        return response()->json(['status' => true, 'message' => "Une nouvelle travail a été ajouté"], 201);
+
+        return response()->json(['status' => false, 'message' => "Ce travail  existe dejà dans la base"]);
     }
 
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function addAlltravail(Request $request)
     {
         $requests = json_decode($request->getContent(), true); // decodage du JSON
@@ -61,6 +58,7 @@ class TravailController extends Controller
                 $i++;
             }
         }
+        
         return response()->json(['status' => !empty($travailExist), 'rejeter' => $travailExist]);
     }
 

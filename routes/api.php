@@ -56,7 +56,7 @@ Route::post('/addAlldistrict', [DistrictController::class, 'addAlldistrict']);
 
 Route::apiResource('/communes', CommuneController::class);
 
-Route::post('/addAllcommune', [CommuneController::class, 'addAllcommune']);
+Route::post('/addAllCommune', [CommuneController::class, 'addAllcommune']);
 
 
 Route::apiResource('/fonkotany', FonkotanyController::class);
