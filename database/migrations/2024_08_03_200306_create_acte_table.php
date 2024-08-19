@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('acte', function (Blueprint $table) {
             $table->id('id_acte');
-            $table->string('num_acte', 100)->nullable(false);
+            $table->string('num_acte', 30)->nullable(false);
             $table->date('date_acte')->nullable(false);
             $table->time('heure_acte')->nullable(false);
             $table->string('lieu_acte', 100)->nullable(false);

@@ -13,12 +13,12 @@ return new class extends Migration
     {
         Schema::create('commune', function (Blueprint $table) {
             $table->id('id_commune');
-            $table->string('code_commune', 10)->unique()->nullable(false);
+            $table->string('code_commune', 15)->unique()->nullable(false);
             $table->string('nom_commune', 50)->nullable(false);
             $table->unsignedBigInteger('id_district')->nullable(false);
 
-            $table->timestamps();
 
+            $table->timestamps();
             // Contrainte de clé étrangère
             $table->foreign('id_district')->references('id_district')->on('district')->onDelete('cascade');
         });

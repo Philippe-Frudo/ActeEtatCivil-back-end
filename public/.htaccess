@@ -24,7 +24,7 @@
 
 
 
-# ======================== MON HTACCESS LOCAL =============================
+# ======================== MON HTACCESS EN LIGNE =============================
 # <IfModule mod_rewrite.c>
 #     <IfModule mod_negotiation.c>
 #         Options -MultiViews -Indexes
