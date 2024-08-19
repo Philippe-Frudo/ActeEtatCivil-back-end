@@ -139,7 +139,6 @@ class ActeController extends Controller
 
 
 
-
     public function show(int $id)
     {
         // return $id;
@@ -151,9 +150,6 @@ class ActeController extends Controller
     }
 
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $numero = $this->acte->where("num_acte", $request->num_acte)->where("id_type", $request->id_type)->first();
@@ -170,9 +166,6 @@ class ActeController extends Controller
     }
 
 
-    /**
-     * Display the specified resource.
-     */
     public function getDetail(int $id)
     {
         $result = $this->acte->select(
@@ -279,6 +272,7 @@ class ActeController extends Controller
 
     public function destroy(string $id)
     {
+
         $acte = $this->acte->find($id);
         if (!$acte) {
             return null;
@@ -287,16 +281,17 @@ class ActeController extends Controller
         $idPersonne = $acte->id_person;
 
         $resp = $acte->delete();
-
-        // Rechercher encor s'il c'est encore utiliser ?
-        $secondActe = $this->acte->where("id_person", $idPersonne)->first();
-        if (!$secondActe) {
+        if ($resp) {
+            // Rechercher encor s'il c'est encore utiliser ?
+            $secondActe = $this->acte->where("id_person", $idPersonne)->first();
+            if (!$secondActe) {
+                return null;
+            }
+            return $idPersonne;
+        } else {
             return null;
         }
-
-        return $idPersonne;
     }
-
 
 
     public function verifyNumActe(Request $request)
@@ -315,10 +310,15 @@ class ActeController extends Controller
     }
 
 
+
     // Nombre d'acte de naissance
     public function countNaissance()
     {
-        $results = $this->acte->where('id_type', 1)->count();
+        // $commune = $request->query('commune');
+
+        $results = $this->acte
+            ->where('id_type', 1)->get();
+
         if (!$results) {
             return 0;
         }
@@ -362,7 +362,7 @@ class ActeController extends Controller
     {
         // Récupérer l'année actuelle
         $currentYear = Carbon::now()->year;
-    
+
         // Récupérer le nombre d'enregistrements par mois pour l'année actuelle
         $enregistrements = $this->acte
             ->select(DB::raw('MONTH(created_at) as month'), DB::raw('COUNT(*) as count'))
@@ -370,15 +370,15 @@ class ActeController extends Controller
             ->groupBy(DB::raw('MONTH(created_at)'))
             ->pluck('count', 'month')
             ->toArray();
-    
+
         // Créer un tableau avec tous les mois de l'année avec des valeurs par défaut de 0
         $monthlyCounts = array_fill(1, 12, 0);
-    
+
         // Remplir les valeurs avec les données récupérées
         foreach ($enregistrements as $month => $count) {
             $monthlyCounts[$month] = $count;
         }
-    
+
         return response()->json($monthlyCounts);
     }
 
