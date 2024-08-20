@@ -50,7 +50,7 @@ class OfficierController extends Controller
             ],
         ];
 
-
+        
         $officier = $this->officier->all();
 
         // Si le table est vide alors créer ces utilisateurs
@@ -92,7 +92,6 @@ class OfficierController extends Controller
     }
 
 
-
     public function store(Request $request)
     {
         $verify = $this->officier->where('email_off', $request->email_off)->first();
@@ -102,7 +101,7 @@ class OfficierController extends Controller
                 return response()->json(['status' => false, 'message' => "Cet email existe déjà dans la base"]);
             }
 
-            if ($verify->id_commune &&  !$verify->isDelete) {
+            if ($verify->id_commune && !$verify->isDelete) {
                 return response()->json(['status' => false, 'message' => "Votre commune a déjà un compte"]);
             }
         }
@@ -166,7 +165,7 @@ class OfficierController extends Controller
     }
 
 
-    public function authentication(Request $request)
+    public function login(Request $request)
     {
         $email = $request->userEmail;
         $password = $request->password;
