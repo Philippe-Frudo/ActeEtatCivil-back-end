@@ -29,7 +29,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 // ============= ROUTE OFFICIER (UTILISATEUR) ============== ====
 Route::apiResource('/officiers', OfficierController::class);
 
-Route::post('/officiers/auth', [OfficierController::class, 'authentication']);
+Route::post('/officiers/login', [OfficierController::class, 'login']);
 
 Route::post('/officiers/verifyConnect', [OfficierController::class, 'verifyConnect']);
 
