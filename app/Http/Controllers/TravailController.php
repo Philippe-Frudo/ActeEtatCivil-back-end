@@ -35,10 +35,8 @@ class TravailController extends Controller
             ]);
             return response()->json(['status' => true, 'message' => "Une nouvelle travaille a été ajouté"]);
         }
-
         return response()->json(['status' => false, 'message' => "Ce travail  existe dejà dans la base"]);
     }
-
 
     public function addAlltravail(Request $request)
     {
@@ -54,7 +52,7 @@ class TravailController extends Controller
                     'nom_travail' => $travail['nom_travail']
                 ]);
             } else {
-                $travailExist[$i] = $travail['nom_travail'];
+                $travailExist[$i] = $travail['nom_travail'] . ', ';
                 $i++;
             }
         }
