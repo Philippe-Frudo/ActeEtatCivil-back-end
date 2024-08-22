@@ -346,9 +346,7 @@ class ActeController extends Controller
     // Nombre d'enregistrement Aujourd'Hui
     public function registerToday()
     {
-        $results = $this->acte->whereDate('created_at', Carbon::today())
-
-            ->count();
+        $results = $this->acte->select("id_commune")->whereDate('created_at', Carbon::today())->get();
         if (!$results) {
             return 0;
         }

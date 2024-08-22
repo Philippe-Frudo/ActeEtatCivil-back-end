@@ -43,7 +43,7 @@ class DistrictController extends Controller
             if (!$response) {
                 return response()->json(['status' => false, 'message' => "une erreur s'est produit lors de l'ajout"]);
             }
-            return response()->json(['status' => true, 'message' => 'Une nouvelle region a été creé'], 200);
+            return response()->json(['status' => true, 'message' => 'Une nouvelle district a été creé'], 200);
         }
 
         return response()->json(['status' => false, 'message' => 'Ce code district existe déjà dans la base.']);
